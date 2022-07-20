@@ -628,7 +628,8 @@ function calculateMatrix (event) {
             destPts = [0, 1, 0, 0, 1, 0, 1, 1];
         }
     }
-	const transform = PerspT(destPts, srcPts);
+	console.log(destPts, srcPts);
+    const transform = PerspT(destPts, srcPts);
     let [a1, a2, a3, b1, b2, b3, c1, c2, c3] = transform.coeffs;
     PerspTMatrix.set(a1, a2, a3, b1 ,b2, b3, c1, c2, c3);
 
