@@ -10,7 +10,7 @@ import {GLTFExporter} from 'https://unpkg.com/three@0.142.0/examples/jsm/exporte
 let scene, renderer, camera, control, orbit, raycaster, pointer;
 let gui, gridHelper, axes;
 let cubeMaterials = [], controlPoints = [], colorsBackup = [], destPts = [];
-let cube, currFace, selectedFace, selectedFaceNormal, selectedFaceHighlight, pickPlane, controlShape, PerspTMatrix;
+let cube, currFace, selectedFace, selectedFaceNormal, selectedFaceHighlight, pickPlane, controlShape, currImage, coeffs;
 let shapeFolder, wrapFolder, exportFolder;
 
 const params = {
@@ -32,18 +32,21 @@ const params = {
         if (destPts.length > 0){
             destPts = destPts.slice(2).concat(destPts.slice(0, 2));
             calculateMatrix();
+            updateFaceMaterial();
         }  
     },
     vFlip: function () {
         if (destPts.length > 0){
             destPts = destPts.slice(-2).concat(destPts.slice(-4, -2), destPts.slice(2, 4), destPts.slice(0, 2));
             calculateMatrix();
+            updateFaceMaterial();
         }  
     },
     hFlip: function () {
         if (destPts.length > 0){
             destPts = destPts.slice(2, 4).concat(destPts.slice(0, 2), destPts.slice(-2), destPts.slice(-4, -2));
             calculateMatrix();
+            updateFaceMaterial();
         }  
     },
     finish: function () {
@@ -116,7 +119,7 @@ function init() {
 	//  cubeMaterials order:
     //   Positive X - normal ( 1, 0, 0), Negative X - normal (-1, 0, 0), Positive Y - normal ( 0, 1, 0), 
     //   Negative Y - normal ( 0,-1, 0), Positive Z - normal ( 0, 0, 1), Negative Z - normal ( 0, 0,-1)
-	let cubeGeometry = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
+	let cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
     for (let i = 0; i < 6; i++) {
         let color = new THREE.Color(0xffffff);
         colorsBackup.push(color);
@@ -172,8 +175,9 @@ function init() {
         // Change controlShape
         controlShape.geometry = lineGeometryFromPoints(controlPoints[0].position, controlPoints[1].position, controlPoints[2].position, controlPoints[3].position).clone();
         controlShape.geometry.attributes.position.needsUpdate = true;
-        // Update face material
+        // Update cube face material
         calculateMatrix();
+        updateFaceMaterial();
     });
     
     // Event Listeners
@@ -247,52 +251,55 @@ function createFaceMaterial(color) {
 }
 
 /**
- * Create a material with a texture and a shader
+ * Apply perspective transform on an image data, draw it on a canvas and use it as a texture for a material
  *
  * @param {THREE.Color}   color
- * @param {THREE.Texture} texture              The uploaded image
- * @param {THREE.Matrix3} perspectiveTransform Perspective transform matrix
  * 
- * @return {THREE.MeshStandardMaterial} The new material with texture and applied transformation
+ * @return {THREE.MeshStandardMaterial} The new material with transformed image as a texture
  */
-function createShaderFaceMaterial(color, texture, perspectiveTransform) {
-            
-    let material = new THREE.MeshStandardMaterial({color: color, transparent: true, opacity: 1});
-    material.onBeforeCompile = shader => {
-        shader.uniforms.ptmat = {value: perspectiveTransform};
-        shader.uniforms.tDiffuse = {type: "t", value: texture};
-        shader.vertexShader = "varying vec2 vUv;\n" + shader.vertexShader;
-        shader.vertexShader = shader.vertexShader.replace(
-            `#include <begin_vertex>`,
-            [
-            "#include <begin_vertex>",
-            "vUv = uv;",
-            ""
-            ].join("\n")
-        );
-        shader.fragmentShader = [
-            "uniform sampler2D tDiffuse;",
-            "uniform mat3 ptmat;",
-            "uniform int isImage;",
-            "varying vec2 vUv;",
-            ""
-        ].join("\n") + shader.fragmentShader;
-        shader.fragmentShader = shader.fragmentShader.replace(
-            `#include <dithering_fragment>`,
-            [
-            "#include <dithering_fragment>",
-            "vec3 v = vec3(vUv,1);",
-            "vec3 p = ptmat * v;",
-            "p.x = p.x / p.z;",
-            "p.y = p.y / p.z;",
-            "vec4 color = texture2D(tDiffuse, p.xy);",
-            "gl_FragColor = color;",
-            ""
-            ].join("\n")
-        );
-    };
+function createImageFaceMaterial(color) {
     
-    return material;
+    const ctx = document.createElement('canvas').getContext('2d');
+    let width = currImage.width;
+    let height = currImage.height;
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+    ctx.drawImage(currImage, 0, 0);
+    const originalImageData = ctx.getImageData(0, 0, width, height);
+    let newImagedata = ctx.createImageData(width, height);
+    // Loop over all of the pixels
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            // Get the pixel index
+            var pixelindex = (y * width + x) * 4;
+            
+            let oX = coeffs[0] * x + coeffs[1] * y + coeffs[2];
+            let oY = coeffs[3] * x + coeffs[4] * y + coeffs[5];
+            let oZ = coeffs[6] * x + coeffs[7] * y + 1;
+            oX = Math.round(oX / oZ);
+            oY = Math.round(oY / oZ);
+            let oPixIndex = (oY * width + oX) * 4;
+
+            // Set the pixel data
+            newImagedata.data[pixelindex]   = originalImageData.data[oPixIndex];     // Red
+            newImagedata.data[pixelindex+1] = originalImageData.data[oPixIndex + 1]; // Green
+            newImagedata.data[pixelindex+2] = originalImageData.data[oPixIndex + 2]; // Blue
+            newImagedata.data[pixelindex+3] = 255;                                   // Alpha
+        }
+    }
+    
+    ctx.putImageData(newImagedata, 0, 0);
+    var texture = new THREE.CanvasTexture(ctx.canvas);
+    return new THREE.MeshStandardMaterial({color: color, map: texture, transparent: true, opacity: 1});
+    
+}
+
+/**
+ * Update the current cube face with a new material
+ */
+function updateFaceMaterial(){
+    
+    cube.material[Math.floor(selectedFace / 2)] = createImageFaceMaterial(colorsBackup[Math.floor(selectedFace / 2)]);
     
 }
 
@@ -442,20 +449,22 @@ function onClick(event) {
         selectedFaceNormal = intersection.face.normal;
         
         let positions = cube.geometry.attributes.position.array;
+        let indexes = cube.geometry.index.array;
+        let index = indexes[faceIndex * 3];
         let pts = [];
-        
-        pts.push(new THREE.Vector3(positions[faceIndex * 9], positions[faceIndex * 9 + 1], positions[faceIndex * 9 + 2]));
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 3], positions[faceIndex * 9 + 4], positions[faceIndex * 9 + 5]));
-        
-        pts.push(new THREE.Vector3(positions[faceIndex * 9], positions[faceIndex * 9 + 1], positions[faceIndex * 9 + 2]));
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 6], positions[faceIndex * 9 + 7], positions[faceIndex * 9 + 8]));
-        
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 12], positions[faceIndex * 9 + 13], positions[faceIndex * 9 + 14]));
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 3], positions[faceIndex * 9 + 4], positions[faceIndex * 9 + 5]));
-        
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 12], positions[faceIndex * 9 + 13], positions[faceIndex * 9 + 14]));
-        pts.push(new THREE.Vector3(positions[faceIndex * 9 + 6], positions[faceIndex * 9 + 7], positions[faceIndex * 9 + 8]));
 
+        pts.push(new THREE.Vector3(positions[index * 3], positions[index * 3 + 1], positions[index * 3 + 2]));
+        pts.push(new THREE.Vector3(positions[(index + 1) * 3], positions[(index + 1) * 3 + 1], positions[(index + 1) * 3 + 2]));
+        
+        pts.push(new THREE.Vector3(positions[index * 3], positions[index * 3 + 1], positions[index * 3 + 2]));
+        pts.push(new THREE.Vector3(positions[(index + 2) * 3], positions[(index + 2) * 3 + 1], positions[(index + 2) * 3 + 2]));
+        
+        pts.push(new THREE.Vector3(positions[(index + 4) * 3], positions[(index + 4) * 3 + 1], positions[(index + 4) * 3 + 2]));
+        pts.push(new THREE.Vector3(positions[(index + 1) * 3], positions[(index + 1) * 3 + 1], positions[(index + 1) * 3 + 2]));
+        
+        pts.push(new THREE.Vector3(positions[(index + 4) * 3], positions[(index + 4) * 3 + 1], positions[(index + 4) * 3 + 2]));
+        pts.push(new THREE.Vector3(positions[(index + 2) * 3], positions[(index + 2) * 3 + 1], positions[(index + 2) * 3 + 2]));
+        
         let lineGeometry = new THREE.BufferGeometry().setFromPoints(pts);
         let lineMaterial = new THREE.LineBasicMaterial({color: 0x00ff00});
 	    selectedFaceHighlight = new THREE.LineSegments(lineGeometry, lineMaterial);
@@ -519,12 +528,12 @@ function handleFiles() {
     if (selectedFace == undefined) {
         return;
     }
-    let image = new Image();
-    image.crossOrigin = 'Anonymous';
+    currImage = new Image();
+    currImage.crossOrigin = 'Anonymous';
     const reader = new FileReader();
     reader.onloadend = () => {
         if (reader.result.startsWith('data:image')) {
-            image.src = reader.result;
+            currImage.src = reader.result;
         } else {
             console.log('Error: file uploaded is not an image');
         }
@@ -532,8 +541,8 @@ function handleFiles() {
     reader.onerror = function (error) {
         console.log('Error: ', error);
     };
-    image.onload = function () {
-        pickCorners(image);
+    currImage.onload = function () {
+        pickCorners();
     }
     reader.readAsDataURL(this.files[0]);
 
@@ -544,13 +553,13 @@ function handleFiles() {
  * 
  * @params {Image} The image to be used as a face texture
  */
-function pickCorners(image) {
+function pickCorners() {
     
     // Create plane
-    const planeGeometry = createPickPlane(image.width, image.height);
+    const planeGeometry = createPickPlane(currImage.width, currImage.height);
     planeGeometry.computeBoundingBox();
     planeGeometry.computeBoundingSphere();
-    let texture = new THREE.Texture(image);
+    let texture = new THREE.Texture(currImage);
     texture.needsUpdate = true;
     let planeMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff,
@@ -575,9 +584,8 @@ function pickCorners(image) {
 	scene.add(controlShape);
 	
 	// Replace face material
-	PerspTMatrix = new THREE.Matrix3();
 	calculateMatrix();
-    cube.material[Math.floor(selectedFace / 2)] = createShaderFaceMaterial(colorsBackup[Math.floor(selectedFace / 2)], texture, PerspTMatrix);
+    updateFaceMaterial();
     
     // Show image design GUI options
     showImageOptions();
@@ -596,42 +604,41 @@ function calculateMatrix (event) {
     const srcPts = [];
     for (let j = 0; j < 4; j++) {
         if (selectedFaceNormal.x == 1) {
-            srcPts.push((controlPoints[j].position.z - max.z) / (min.z - max.z));
-            srcPts.push((controlPoints[j].position.y - min.y) / (max.y - min.y));
+            srcPts.push((controlPoints[j].position.z - max.z) * currImage.width / (min.z - max.z));
+            srcPts.push((controlPoints[j].position.y - max.y) * currImage.height / (min.y - max.y));
         } else if (selectedFaceNormal.x == -1) {
-            srcPts.push((controlPoints[j].position.z - min.z) / (max.z - min.z));
-            srcPts.push((controlPoints[j].position.y - min.y) / (max.y - min.y));
+            srcPts.push((controlPoints[j].position.z - min.z) * currImage.width / (max.z - min.z));
+            srcPts.push((controlPoints[j].position.y - max.y) * currImage.height / (min.y - max.y));
         }
         if (selectedFaceNormal.y == 1) {
-            srcPts.push((controlPoints[j].position.z - max.z) / (min.z - max.z));
-            srcPts.push((controlPoints[j].position.x - max.x) / (min.x - max.x));
+            srcPts.push((controlPoints[j].position.z - max.z) * currImage.width / (min.z - max.z));
+            srcPts.push((controlPoints[j].position.x - min.x) * currImage.height / (max.x - min.x));
         } else if (selectedFaceNormal.y == -1) {
-            srcPts.push((controlPoints[j].position.z - max.z) / (min.z - max.z));
-            srcPts.push((controlPoints[j].position.x - min.x) / (max.x - min.x));
+            srcPts.push((controlPoints[j].position.z - max.z) * currImage.width / (min.z - max.z));
+            srcPts.push((controlPoints[j].position.x - max.x) * currImage.height / (min.x - max.x));
         }
         if (selectedFaceNormal.z == 1) {
-            srcPts.push((controlPoints[j].position.x - min.x) / (max.x - min.x));
-            srcPts.push((controlPoints[j].position.y - min.y) / (max.y - min.y));
+            srcPts.push((controlPoints[j].position.x - min.x) * currImage.width / (max.x - min.x));
+            srcPts.push((controlPoints[j].position.y - max.y) * currImage.height / (min.y - max.y));
         } else if (selectedFaceNormal.z == -1) {
-            srcPts.push((controlPoints[j].position.x - max.x) / (min.x - max.x));
-            srcPts.push((controlPoints[j].position.y - min.y) / (max.y - min.y));
+            srcPts.push((controlPoints[j].position.x - max.x) * currImage.width / (min.x - max.x));
+            srcPts.push((controlPoints[j].position.y - max.y) * currImage.height / (min.y - max.y));
         }
     }
     
     // Destination points come from the face points position
     if (destPts.length == 0) {
         if (selectedFaceNormal.y == 0) {
-            destPts = [0, 0, 1, 0, 1, 1, 0, 1];
+            destPts = [0, currImage.height, currImage.width, currImage.height, currImage.width, 0, 0, 0];
         } else if (selectedFaceNormal.y == 1) {
-            destPts = [1, 0, 1, 1, 0, 1, 0, 0];
+            destPts = [currImage.width, currImage.height, currImage.width, 0, 0, 0, 0, currImage.height];
         } else if (selectedFaceNormal.y == -1) {
-            destPts = [0, 1, 0, 0, 1, 0, 1, 1];
+            destPts = [0, 0, 0, currImage.height, currImage.width, currImage.height, currImage.width, 0];
         }
     }
-	console.log(destPts, srcPts);
-    const transform = PerspT(destPts, srcPts);
-    let [a1, a2, a3, b1, b2, b3, c1, c2, c3] = transform.coeffs;
-    PerspTMatrix.set(a1, a2, a3, b1 ,b2, b3, c1, c2, c3);
+    
+	const transform = PerspT(destPts, srcPts);
+    coeffs = transform.coeffs;
 
 }
 
