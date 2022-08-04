@@ -1,5 +1,8 @@
 # cubyot
-Tool for creating 3D cubical models from images built with [Three.js](https://github.com/mrdoob/three.js/).  
-Image stretching is done with the help of [perspective-transform](https://github.com/jlouthan/perspective-transform).  
+Tool for stretching images on 3D cubical models built with [Three.js](https://github.com/mrdoob/three.js/).  
+Image stretching math is done with the help of [perspective-transform](https://github.com/jlouthan/perspective-transform).  
+Since the pixel manipulation is done on the ImageData of a canvas element and not in the shader, it is possible to download the shape with all textures in a lightweight glTF 2.0 format.
   
-Demo: [einatsof.github.io/cubyot](https://einatsof.github.io/cubyot)
+Demo: [einatsof.github.io/cubyot](https://einatsof.github.io/cubyot)  
+  
+![Example](https://github.com/einatsof/threejs-projects/blob/main/cubyot/example.png?raw=true)
