@@ -64,62 +64,62 @@ animate();
 
 function init() {
 
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
-    document.body.appendChild(renderer.domElement);
+	renderer = new THREE.WebGLRenderer();
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0x000000, 0);
+	document.body.appendChild(renderer.domElement);
 
     // Camera
     const aspect = window.innerWidth / window.innerHeight;
-    camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 30000);
-    camera.position.set(4, 4, 4);
-    camera.lookAt(0, 0, 0);
+	camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 30000);
+	camera.position.set(4, 4, 4);
+	camera.lookAt(0, 0, 0);
     
     // Grid helper
-    scene = new THREE.Scene();
-    gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0x444444);
-    scene.add(gridHelper);
+	scene = new THREE.Scene();
+	gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0x444444);
+	scene.add(gridHelper);
 	
-    // Axis helper
-    axes = new THREE.AxesHelper(10);
-    axes.name = 'AxesHelper';
-    scene.add(axes);
+	// Axis helper
+	axes = new THREE.AxesHelper(10);
+	axes.name = 'AxesHelper';
+	scene.add(axes);
 
     // Lights
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1);
-    scene.add(light);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.7);
-    light2.position.set(-1, 1, -1);
-    scene.add(light2);
-    const light3 = new THREE.DirectionalLight(0xffffff, 0.3);
-    light3.position.set(1, -1, -1);
-    scene.add(light3);
+	const light = new THREE.DirectionalLight(0xffffff, 1);
+	light.position.set(1, 1, 1);
+	scene.add(light);
+	const light2 = new THREE.DirectionalLight(0xffffff, 0.7);
+	light2.position.set(-1, 1, -1);
+	scene.add(light2);
+	const light3 = new THREE.DirectionalLight(0xffffff, 0.3);
+	light3.position.set(1, -1, -1);
+	scene.add(light3);
     
     // Orbit controls
-    orbit = new OrbitControls(camera, renderer.domElement);
-    orbit.update();
-    orbit.addEventListener('change', render);
+	orbit = new OrbitControls(camera, renderer.domElement);
+	orbit.update();
+	orbit.addEventListener('change', render);
 
     // Transform controls
-    control = new TransformControls(camera, renderer.domElement);
-    control.mode = 'scale';
-    control.setSize(0.75);
-    control.addEventListener('change', render);
-    control.addEventListener('dragging-changed', function (event) {
-        orbit.enabled = !event.value;
-    });
+	control = new TransformControls(camera, renderer.domElement);
+	control.mode = 'scale';
+	control.setSize(0.75);
+	control.addEventListener('change', render);
+	control.addEventListener('dragging-changed', function (event) {
+		orbit.enabled = !event.value;
+	});
 	
-    // Raycaster
-    raycaster = new THREE.Raycaster();
-    pointer = new THREE.Vector2(-1, 1);
+	// Raycaster
+	raycaster = new THREE.Raycaster();
+	pointer = new THREE.Vector2(-1, 1);
 	
-    // Cube
-    //  cubeMaterials order:
+	// Cube
+	//  cubeMaterials order:
     //   Positive X - normal ( 1, 0, 0), Negative X - normal (-1, 0, 0), Positive Y - normal ( 0, 1, 0), 
     //   Negative Y - normal ( 0,-1, 0), Positive Z - normal ( 0, 0, 1), Negative Z - normal ( 0, 0,-1)
-    let cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+	let cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
     for (let i = 0; i < 6; i++) {
         let color = new THREE.Color(0xffffff);
         colorsBackup.push(color);
@@ -129,7 +129,7 @@ function init() {
     cube.name = "cube";
     scene.add(cube);
     control.attach(cube);
-    scene.add(control);
+	scene.add(control);
     
     // Control points listeners
     let dragControls = new DragControls(controlPoints, camera, renderer.domElement);
@@ -181,19 +181,19 @@ function init() {
     });
     
     // Event Listeners
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('click', onClick);
-    window.addEventListener('touchstart', onMouseMove); // Mobile support
-    window.addEventListener('touchend', onClick);       // Mobile support
-    document.getElementById('input').addEventListener("change", handleFiles, false);
+	window.addEventListener('resize', onWindowResize);
+	window.addEventListener('mousemove', onMouseMove);
+	window.addEventListener('click', onClick);
+	window.addEventListener('touchstart', onMouseMove); // Mobile support
+	window.addEventListener('touchend', onClick);       // Mobile support
+	document.getElementById('input').addEventListener("change", handleFiles, false);
 	
-    // GUI
-    createGUI();
+	// GUI
+	createGUI();
 	
-    // Instructions
-    document.getElementById('info').innerHTML = "Instructions: transform cube to desired shape and click \"Next\"";
-    hideImageOptions();
+	// Instructions
+	document.getElementById('info').innerHTML = "Instructions: transform cube to desired shape and click \"Next\"";
+	hideImageOptions();
 
 }
 
@@ -202,10 +202,10 @@ function init() {
  */
 function onWindowResize() {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    render();
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	render();
 
 }
 
@@ -214,16 +214,16 @@ function onWindowResize() {
  */
 function animate() {
 	
-    // Things that work only on 2nd stage
-    if (params.stage == 2) {
-        // Hovering on faces animation
-        resetMaterials();
+	// Things that work only on 2nd stage
+	if (params.stage == 2) {
+	    // Hovering on faces animation
+		resetMaterials();
         hoverFace();
-    }
+	}
 	
-    requestAnimationFrame(animate);
-    orbit.update();
-    render();
+	requestAnimationFrame(animate);
+	orbit.update();
+	render();
 
 }
 
@@ -232,7 +232,7 @@ function animate() {
  */
 function render() {
 
-    renderer.render( scene, camera );
+	renderer.render( scene, camera );
 
 }
 
@@ -309,8 +309,8 @@ function updateFaceMaterial(){
  function hideImageOptions() {
      
     document.getElementById('lil-gui-name-9').parentNode.parentNode.parentNode.style.display = "none";
-    document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "none";
-    document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "none";
+	document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "none";
+	document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "none";
     document.getElementById('lil-gui-name-8').parentNode.parentNode.parentNode.style.display = "flex";
      
  }
@@ -321,9 +321,9 @@ function updateFaceMaterial(){
  function showImageOptions() {
      
     document.getElementById('lil-gui-name-9').parentNode.parentNode.parentNode.style.display = "flex";
-    document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "flex";
-    document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "flex";
-    document.getElementById('lil-gui-name-8').parentNode.parentNode.parentNode.style.display = "none";
+	document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "flex";
+	document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "flex";
+	document.getElementById('lil-gui-name-8').parentNode.parentNode.parentNode.style.display = "none";
      
  }
 
@@ -333,7 +333,7 @@ function updateFaceMaterial(){
 function shapeDesignFinished() {
     
     // GUI change
-    shapeFolder.hide();
+ 	shapeFolder.hide();
     exportFolder.show();
     // Apply transformation matrix to position attribute
     cube.geometry.attributes.position.applyMatrix4(cube.matrix);
@@ -365,12 +365,12 @@ function hoverFace() {
     if (intersects.length > 0){
         const intersection = intersects[0];
         // The intersected face
-        let faceIndex = intersection.faceIndex;
-        if (faceIndex % 2 == 1) {
-            faceIndex--;
-        }
-        currFace = faceIndex;
-        let newColor = new THREE.Color(0xffff00);
+	    let faceIndex = intersection.faceIndex;
+	    if (faceIndex % 2 == 1) {
+	        faceIndex--;
+	    }
+	    currFace = faceIndex;
+	    let newColor = new THREE.Color(0xffff00);
         let face = Math.floor(currFace / 2);
         for (let i = 0; i < 6; i++) {
             if (i != face) {
@@ -421,8 +421,8 @@ function paintFace(faceIndex, newColor) {
  */
 function onMouseMove(event) {
 
-    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
 }
 
@@ -467,23 +467,23 @@ function onClick(event) {
         
         let lineGeometry = new THREE.BufferGeometry().setFromPoints(pts);
         let lineMaterial = new THREE.LineBasicMaterial({color: 0x00ff00});
-        selectedFaceHighlight = new THREE.LineSegments(lineGeometry, lineMaterial);
+	    selectedFaceHighlight = new THREE.LineSegments(lineGeometry, lineMaterial);
         scene.add(selectedFaceHighlight);
     
-        // Stage 3
-        params.stage = 3;
-        resetMaterials();
-        let face = Math.floor(selectedFace / 2);
+	    // Stage 3
+	    params.stage = 3;
+	    resetMaterials();
+	    let face = Math.floor(selectedFace / 2);
         for (let i = 0; i < 6; i++) {
             if (i != face) {
                 cube.material[i].opacity = 0.7;
             }           
         }
 
-        params.color = cube.material[face].color.clone();
-        wrapFolder.show();
-        document.getElementById('info').innerHTML = "Instructions: Upload an image or pick a color";
-    }
+	    params.color = cube.material[face].color.clone();
+	    wrapFolder.show();
+	    document.getElementById('info').innerHTML = "Instructions: Upload an image or pick a color";
+	}
 	
 }
 
@@ -580,11 +580,11 @@ function pickCorners() {
     // Create control shape
     let lineGeometry = selectedFaceHighlight.geometry.clone();
     let lineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
-    controlShape = new THREE.LineSegments(lineGeometry, lineMaterial);
-    scene.add(controlShape);
+	controlShape = new THREE.LineSegments(lineGeometry, lineMaterial);
+	scene.add(controlShape);
 	
-    // Replace face material
-    calculateMatrix();
+	// Replace face material
+	calculateMatrix();
     updateFaceMaterial();
     
     // Show image design GUI options
@@ -637,7 +637,7 @@ function calculateMatrix (event) {
         }
     }
     
-    const transform = PerspT(destPts, srcPts);
+	const transform = PerspT(destPts, srcPts);
     coeffs = transform.coeffs;
 
 }
@@ -653,17 +653,17 @@ function calculateMatrix (event) {
 function createControlPoint(posX, posY, posZ, color) {
     
     let dim = 0.1;
-    let pointGeometry = new THREE.BoxGeometry(dim, dim, dim);
-    let pointMaterial = new THREE.MeshBasicMaterial({
-        color: color,
+	let pointGeometry = new THREE.BoxGeometry(dim, dim, dim);
+	let pointMaterial = new THREE.MeshBasicMaterial({
+    	color: color,
     	transparent: true,
     	opacity: 0.5
-    });
-    let controlPoint = new THREE.Mesh(pointGeometry, pointMaterial);
-    controlPoint.position.set(posX, posY, posZ);
-    controlPoints.push(controlPoint);
-    scene.add(controlPoint);
-
+	});
+	let controlPoint = new THREE.Mesh(pointGeometry, pointMaterial);
+	controlPoint.position.set(posX, posY, posZ);
+	controlPoints.push(controlPoint);
+	scene.add(controlPoint);
+	
 }
 
 /**
@@ -797,58 +797,58 @@ function createPickPlane(imageWidth, imageHeight) {
  */
 function createGUI() {
 
-    gui = new GUI();
+	gui = new GUI();
 
     // Fixed section
     let sceneFolder = gui.addFolder('Scene Controls');
     sceneFolder.add(params, 'fov', 10, 150).name('FOV').step(1).onChange(function (fov) {
-        camera.fov = fov;
+	    camera.fov = fov;
         camera.updateProjectionMatrix(); 
-    });
-    sceneFolder.add(params, 'axes').name ('Show axes').onChange(function () {
-        if (params.axes) {
-            scene.add(axes);    
-        } else {
-            scene.remove(axes);
-        }
-    });
-    sceneFolder.add(params, 'grid').name('Show grid').onChange(function () {
-        if (params.grid) {
-            scene.add(gridHelper);
-        } else {
-            scene.remove(gridHelper);
-        }
-    });
-    sceneFolder.add( params, 'spin' ).name( 'Spin' ).onChange( function () {
-        if (params.spin) {
-            orbit.autoRotate = true;
-        } else {
-            orbit.autoRotate = false;
-        }
-    });
-    sceneFolder.add(params, 'bgcolor', {Black: 'black', White: 'white', Blue: 'deepskyblue'}).name('Background Color').onChange(function () {
-        scene.background = new THREE.Color(params.bgcolor);
-    });
-    sceneFolder.open();
+	});
+	sceneFolder.add(params, 'axes').name ('Show axes').onChange(function () {
+	    if (params.axes) {
+	        scene.add(axes);    
+	    } else {
+	        scene.remove(axes);
+	    }
+	});
+	sceneFolder.add(params, 'grid').name('Show grid').onChange(function () {
+	    if (params.grid) {
+	        scene.add(gridHelper);
+	    } else {
+	        scene.remove(gridHelper);
+	    }
+	});
+	sceneFolder.add( params, 'spin' ).name( 'Spin' ).onChange( function () {
+	    if (params.spin) {
+	        orbit.autoRotate = true;
+	    } else {
+	        orbit.autoRotate = false;
+	    }
+	});
+	sceneFolder.add(params, 'bgcolor', {Black: 'black', White: 'white', Blue: 'deepskyblue'}).name('Background Color').onChange(function () {
+	    scene.background = new THREE.Color(params.bgcolor);
+	});
+	sceneFolder.open();
 	
-    // 1st stage section
-    shapeFolder = gui.addFolder('Shape Transform Controls');
-    shapeFolder.add(params, 'next').name('Next');
+	// 1st stage section
+	shapeFolder = gui.addFolder('Shape Transform Controls');
+	shapeFolder.add(params, 'next').name('Next');
     shapeFolder.open();
     
     // 3rd stage section
     wrapFolder = gui.addFolder('Face Design Controls');
-    wrapFolder.addColor(params, 'color').name('Pick color').listen().onChange(function (colorValue) {
-    	paintFace(currFace, new THREE.Color(colorValue));
-    });
-    wrapFolder.add(params, 'upload').name('Upload image');
-    wrapFolder.add(params, 'rotate').name('Rotate image');
-    wrapFolder.add(params, 'vFlip').name('Flip image vertically');
-    wrapFolder.add(params, 'hFlip').name('Flip image horizontally');
-    wrapFolder.add(params, 'finish').name('Finished');
-    wrapFolder.hide();
+	wrapFolder.addColor(params, 'color').name('Pick color').listen().onChange(function (colorValue) {
+		paintFace(currFace, new THREE.Color(colorValue));
+	});
+	wrapFolder.add(params, 'upload').name('Upload image');
+	wrapFolder.add(params, 'rotate').name('Rotate image');
+	wrapFolder.add(params, 'vFlip').name('Flip image vertically');
+	wrapFolder.add(params, 'hFlip').name('Flip image horizontally');
+	wrapFolder.add(params, 'finish').name('Finished');
+	wrapFolder.hide();
 	
-    // Export section
+	// Export section
     exportFolder = gui.addFolder('Export');
     exportFolder.add(params, 'trs').name('Use TRS');
     exportFolder.add(params, 'binary').name('Binary (GLB)');
@@ -864,29 +864,29 @@ function createGUI() {
  */
 function exportGLTF(input) {
 
-    const gltfExporter = new GLTFExporter();
+	const gltfExporter = new GLTFExporter();
 
-    const options = {
-    	trs: params.trs,
-        binary: params.binary
-    };
-    gltfExporter.parse(
-        input,
-    	function (result) {
-    	    if (result instanceof ArrayBuffer) {
-                saveArrayBuffer(result, 'cubyot.glb');
-            } else {
-                const output = JSON.stringify(result, null, 2);
-                console.log(output);
-                saveString(output, 'cubyot.gltf');
-            }
-        },
-        function (error) {
-            //console.log( 'An error happened during parsing', error );
-            alert('An error happened during parsing', error);
-        },
-        options
-    );
+	const options = {
+		trs: params.trs,
+		binary: params.binary
+	};
+	gltfExporter.parse(
+		input,
+		function (result) {
+			if (result instanceof ArrayBuffer) {
+				saveArrayBuffer(result, 'cubyot.glb');
+			} else {
+				const output = JSON.stringify(result, null, 2);
+				console.log(output);
+				saveString(output, 'cubyot.gltf');
+			}
+		},
+		function (error) {
+			//console.log( 'An error happened during parsing', error );
+			alert('An error happened during parsing', error);
+		},
+		options
+	);
 
 }
 
@@ -896,21 +896,21 @@ document.body.appendChild(link); // Firefox workaround, see #6594
 
 function save(blob, filename) {
 
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
+	link.href = URL.createObjectURL(blob);
+	link.download = filename;
+	link.click();
 
 }
 
 function saveString(text, filename) {
 
-    save(new Blob([text], {type: 'text/plain'}), filename);
+	save(new Blob([text], {type: 'text/plain'}), filename);
 
 }
 
 
 function saveArrayBuffer(buffer, filename) {
 
-    save(new Blob([buffer], {type: 'application/octet-stream'}), filename);
+	save(new Blob([buffer], {type: 'application/octet-stream'}), filename);
 
 }
