@@ -5,4 +5,4 @@ Since the pixel manipulation is done on the ImageData of a canvas element and no
   
 Demo: [einatsof.github.io/cubyot](https://einatsof.github.io/cubyot)  
   
-![Example](https://github.com/einatsof/threejs-projects/blob/main/cubyot/example.png?raw=true)
+![Example](https://github.com/einatsof/cubyot/blob/main/example.png)
