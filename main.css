@@ -1,43 +1,43 @@
 body {
-	margin: 0;
-	background-color: #000;
-	color: #fff;
-	font-family: Monospace;
-	font-size: 13px;
-	line-height: 24px;
-	overscroll-behavior: none;
+  margin: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: Monospace;
+  font-size: 13px;
+  line-height: 24px;
+  overscroll-behavior: none;
 }
 #lil-gui-name-6{
-    background-color: white;
-    color: black;
+  background-color: white;
+  color: black;
 }
 #lil-gui-name-12{
-    background-color: white;
-    color: black;
+  background-color: white;
+  color: black;
 }
 #lil-gui-name-15{
-    background-color: blue;
-    color: black;
+  background-color: blue;
+  color: black;
 }
 #info {
-	position: absolute;
-	top: 0px;
-	width: 100%;
-	padding: 10px;
-	box-sizing: border-box;
-	text-align: left;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
-	z-index: 100; /* TODO Solve this in HTML */
-	display: block;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: left;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  z-index: 100; /* TODO Solve this in HTML */
+  display: block;
 }
 
 @media all and ( max-width: 640px ) {
-	#info {
-	    top: auto;
-		bottom: 0px;
-	}
+  #info {
+    top: auto;
+    bottom: 0px;
+  }
 }
