@@ -194,26 +194,22 @@ function init() {
   // Instructions
   document.getElementById('info').innerHTML = "Instructions: transform cube to desired shape and click \"Next\"";
   hideImageOptions();
-
 }
 
 /**
  * Change camera and renderer in the event of window resizing
  */
 function onWindowResize() {
-
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   render();
-
 }
 
 /**
  * Animate
  */
 function animate() {
-
   // Things that work only on 2nd stage
   if (params.stage == 2) {
     // Hovering on faces animation
@@ -224,16 +220,13 @@ function animate() {
   requestAnimationFrame(animate);
   orbit.update();
   render();
-
 }
 
 /**
  * Render
  */
 function render() {
-
   renderer.render( scene, camera );
-
 }
 
 
@@ -245,9 +238,11 @@ function render() {
  * @return {THREE.MeshStandardMaterial} The new material with specified color
  */
 function createFaceMaterial(color) {
-
-  return new THREE.MeshStandardMaterial({color: color, transparent: true, opacity: 0.7});
-
+  return new THREE.MeshStandardMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0.7
+  });
 }
 
 /**
@@ -258,7 +253,6 @@ function createFaceMaterial(color) {
  * @return {THREE.MeshStandardMaterial} The new material with transformed image as a texture
  */
 function createImageFaceMaterial(color) {
-
   const ctx = document.createElement('canvas').getContext('2d');
   let width = currImage.width;
   let height = currImage.height;
@@ -291,47 +285,39 @@ function createImageFaceMaterial(color) {
   ctx.putImageData(newImagedata, 0, 0);
   var texture = new THREE.CanvasTexture(ctx.canvas);
   return new THREE.MeshStandardMaterial({color: color, map: texture, transparent: true, opacity: 1});
-
 }
 
 /**
  * Update the current cube face with a new material
  */
 function updateFaceMaterial(){
-
   cube.material[Math.floor(selectedFace / 2)] = createImageFaceMaterial(colorsBackup[Math.floor(selectedFace / 2)]);
-
 }
 
 /**
  * Hides image options in GUI
  */
 function hideImageOptions() {
-
   document.getElementById('lil-gui-name-9').parentNode.parentNode.parentNode.style.display = "none";
   document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "none";
   document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "none";
   document.getElementById('lil-gui-name-8').parentNode.parentNode.parentNode.style.display = "flex";
-
 }
 
 /**
  * Reveals image options in GUI
  */
 function showImageOptions() {
-
   document.getElementById('lil-gui-name-9').parentNode.parentNode.parentNode.style.display = "flex";
   document.getElementById('lil-gui-name-10').parentNode.parentNode.parentNode.style.display = "flex";
   document.getElementById('lil-gui-name-11').parentNode.parentNode.parentNode.style.display = "flex";
   document.getElementById('lil-gui-name-8').parentNode.parentNode.parentNode.style.display = "none";
-
 }
 
 /**
  * Finish shaping the cube and move to specific face design stage
  */
 function shapeDesignFinished() {
-
   // GUI change
  	shapeFolder.hide();
   exportFolder.show();
@@ -351,14 +337,12 @@ function shapeDesignFinished() {
 
   params.stage = 2;
   document.getElementById('info').innerHTML = "Instructions: Pick a face";
-
 }
 
 /**
  * Change face color when hovering on it
  */
 function hoverFace() {
-
   raycaster.setFromCamera(pointer, camera);
   // Check if mouse is intersecting the cube
   const intersects = raycaster.intersectObjects([cube]);
@@ -379,14 +363,12 @@ function hoverFace() {
     }
     cube.material[face].color = newColor;
   }
-
 }
 
 /**
  * Reset colors of last intersected face
  */
 function resetMaterials() {
-
   if (typeof currFace !== 'undefined') {
     let faceIndex = currFace;
     let face = Math.floor(currFace / 2);
@@ -395,7 +377,6 @@ function resetMaterials() {
       cube.material[i].opacity = 1;
     }
   }
-
 }
 
 /**
@@ -412,7 +393,6 @@ function paintFace(faceIndex, newColor) {
 
   let face = Math.floor(faceIndex / 2);
   cube.material[face].color = colorsBackup[face] = newColor;
-
 }
 
 /**
@@ -420,10 +400,8 @@ function paintFace(faceIndex, newColor) {
  * (-1 to +1) for both components
  */
 function onMouseMove(event) {
-
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
 }
 
 /**
@@ -484,7 +462,6 @@ function onClick(event) {
 	  wrapFolder.show();
 	  document.getElementById('info').innerHTML = "Instructions: Upload an image or pick a color";
   }
-
 }
 
 /**
@@ -493,7 +470,6 @@ function onClick(event) {
 function faceDesignFinished(event) {
 
   if (params.stage == 3) {
-
     for (let i = 0; i < 6; i++) {
       cube.material[i].opacity = 1;
     }
@@ -517,7 +493,6 @@ function faceDesignFinished(event) {
   }
 
   hideImageOptions();
-
 }
 
 /**
@@ -545,7 +520,6 @@ function handleFiles() {
     pickCorners();
   }
   reader.readAsDataURL(this.files[0]);
-
 }
 
 /**
@@ -589,7 +563,6 @@ function pickCorners() {
 
   // Show image design GUI options
   showImageOptions();
-
 }
 
 /**
@@ -639,7 +612,6 @@ function calculateMatrix (event) {
 
   const transform = PerspT(destPts, srcPts);
   coeffs = transform.coeffs;
-
 }
 
 /**
@@ -663,7 +635,6 @@ function createControlPoint(posX, posY, posZ, color) {
   controlPoint.position.set(posX, posY, posZ);
   controlPoints.push(controlPoint);
   scene.add(controlPoint);
-
 }
 
 /**
@@ -691,7 +662,6 @@ function lineGeometryFromPoints(p1, p2, p3, p4) {
   pts.push(p2);
   pts.push(p1);
   return new THREE.BufferGeometry().setFromPoints(pts);
-
 }
 
 /**
@@ -729,7 +699,6 @@ function planeGeometryFromPoints(p1, p2, p3, p4) {
   geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   return geometry;
-
 }
 
 /**
@@ -789,7 +758,6 @@ function createPickPlane(imageWidth, imageHeight) {
   }
 
   return planeGeometryFromPoints(p1, p2, p3, p4);
-
 }
 
 /**
@@ -854,7 +822,6 @@ function createGUI() {
   exportFolder.add(params, 'binary').name('Binary (GLB)');
   exportFolder.add(params, 'exportCube').name('Export Cube');
   exportFolder.hide();
-
 }
 
 /**
@@ -887,7 +854,6 @@ function exportGLTF(input) {
     },
     options
   );
-
 }
 
 const link = document.createElement('a');
@@ -895,21 +861,15 @@ link.style.display = 'none';
 document.body.appendChild(link); // Firefox workaround, see #6594
 
 function save(blob, filename) {
-
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
-
 }
 
 function saveString(text, filename) {
-
   save(new Blob([text], {type: 'text/plain'}), filename);
-
 }
 
 function saveArrayBuffer(buffer, filename) {
-
   save(new Blob([buffer], {type: 'application/octet-stream'}), filename);
-
 }
